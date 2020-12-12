@@ -18,41 +18,47 @@ class Board(object):
         self.board_print = self.clean_board
 
     def __clean_and_make_border(self):
-        # clear the baord with ' '
-        board_print = [[self.fill] * self.boardX] * self.boardY
-        # this border function scales to any size of play area
-        # and is much much less of a headache than what i had before
-        # make the top border
-        board_print[0] = self.border_fill * self.boardX
-        # make the bottom border
-        board_print[self.boardY - 1] = self.border_fill * self.boardX
+        # clear the board with ' '
+        board_print = [[self.fill for y in range(self.boardY)] for x in range(self.boardX)]
 
-        # make the side borders which is just the first index and the last index
-        # of each row from the Y index of 1 to Y - 2 since we already have the
-        # first and last row covered
-        for i in range(1, self.boardY - 2):
-            board_print[i][0] = self.border_fill
-            board_print[i][-1] = self.border_fill
+        for x in range(self.boardX):
+            for y in range(self.boardY):
+                # border coordinates
+                if x == 0 or y == 0 or y == self.boardY - 1 or x == self.boardX - 1:
+                    board_print[x][y] = self.border_fill
+                # non-border coordinates
+                else:
+                    board_print[x][y] = self.fill
 
         return board_print
 
     # problem possibly here
     def draw_board(self):
-        for i in self.board_print:
-            print(*i, sep='')
-            # print(i)
+        board_result = ""
+        for y in range(self.boardY):
+            for x in range(self.boardX):
+                board_result += self.board_print[x][y]
+            board_result += "\n"
+        print(board_result)
 
     def clear_board(self):
         self.board_print = self.clean_board
 
     # problem possibly here
-    def draw_snake(self, snake_pos, body_fill):
-        for pos in snake_pos:
-            self.board_print[pos[1]][pos[0]] = body_fill
-            print(pos, self.board_print[pos[1]][pos[0]])
+    def draw_snake(self, snake):
+        for pos in snake.body_pos:
+            self.board_print[pos[0]][pos[1]] = snake.body_fill
+            # print(pos, self.board_print[pos[0]][pos[1]])
 
 
 class Snake(object):
+    # movement and quit ascii numbers
+    w = 119
+    a = 97
+    s = 115
+    d = 100
+    q = 113
+
     def __init__(self, boardX, boardY, body_fill='@', init_length=4):
         self.body_fill = body_fill
         # initial length of the snake
@@ -63,16 +69,9 @@ class Snake(object):
         # the head will start at the center of the baord
         self.startX = math.floor(boardX / 2)
         self.startY = math.floor(boardY / 2)
-        # this 2d array will store the positions of the body pieces in [[X,Y]]
-        self.body_pos = [[i, self.startY] for i in range(self.startX, self.startX + self.init_length)]
+        # this list will store the positions of the body pieces as tuples (x, y)
+        self.body_pos = [(i, self.startY) for i in range(self.startX, self.startX + self.init_length)]
         self.direction = Snake.a
-
-    # movement and quit ascii numbers
-    w = 119
-    a = 97
-    s = 115
-    d = 100
-    q = 113
 
     # incomplete
     def move_snake(self, other):
@@ -111,15 +110,15 @@ class Snake(object):
 
 
 def draw(main_board, main_snake):
-    # os.system('cls')
+    os.system('cls')
     main_board.clear_board()  # get empty board with borders
-    main_board.draw_snake(main_snake.body_pos, main_snake.body_fill)
+    main_board.draw_snake(main_snake)
     main_board.draw_board()  # draw board with snake
-    print(main_snake.body_pos)  # for debug, print positions for snake body
+    # print(main_snake.body_pos)  # for debug, print positions for snake body
 
 
 main_board = Board(20, 10)
 main_snake = Snake(main_board.boardX, main_board.boardY)
-# while True:
-draw(main_board, main_snake)
-# main_snake.move_snake(main_board)
+while True:
+    draw(main_board, main_snake)
+    #main_snake.move_snake(main_board)
